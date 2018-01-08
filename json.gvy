@@ -171,7 +171,7 @@ def parse_json(String text) {
   def (tree, rem) = rules['VALUE'](text)
   if ('EOF' == rem) {
     println "valid json"
-    println tree
+    return tree
   } else {
     println "invalid json"
   }
@@ -187,12 +187,12 @@ String sample_json = """
       "anotherOne": [
         11,
         -1,
-        -1.0,
-        3.5e2
+        1.0,
+        -3.5e2
       ]
     }
   ],
   "keyTwo": "valTwo \\t with an escape"
 }
 """
-parse_json(sample_json)
+assert parse_json(sample_json)["key"][1]["anotherOne"][3] == -350.0
