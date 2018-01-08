@@ -1,5 +1,5 @@
 String grammar = '''
-  VALUE     -> STRING | ARRAY | OBJECT | NUM | 'true' | 'false'
+  VALUE     -> STRING | ARRAY | OBJECT | NUM | BOOL
 
   OBJECT    -> {} | { PAIR (, PAIR)* }
   PAIR      -> STRING : VALUE
@@ -12,6 +12,8 @@ String grammar = '''
 
   STRING    -> '"' (ESC | not ["\\])* '"'
   ESC       -> '\\' [\\/bfnrt]
+
+  BOOL      -> 'true' | 'false'
 '''
 
 // rules return [tree fragments, remainder of text after chomping]
@@ -101,6 +103,8 @@ rules['NUM'] = { it ->
   }
 }
 
+// END OF PARSER CODE
+
 def parse_json(String text) {
   text = text.replaceAll("\\s", "") + "EOF"
   def (tree, rem) = rules['VALUE'](text)
@@ -126,7 +130,7 @@ String sample_json = """
       ]
     }
   ],
-  "keyTwo": "valTwo"
+  "keyTwo": "valTwo\\with escape"
 }
 """
 
