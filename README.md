@@ -3,6 +3,9 @@
 ## poker.gvy
 Computes distribution of hands (straight flush etc)
 
+## json.gvy
+Handwritten json parser. Builds tree representation of json. 
+
 ## regex.gvy
 Regex implementation
 
