@@ -37,10 +37,23 @@ rules['STRING'] = { it ->
   if (!it.startsWith('"')) {
     return null
   }
-  for (int i = 1; i < it.length(); i++) {
-    if (it[i] == '"') {
-      return [it.substring(1, i), it.substring(i+1)];
+  int i = 0
+  while (i++ < it.length()) {
+    if (rules['ESC'](it.substring(i)) != null) {
+      i += 1
+      continue
     }
+    if ('\\' == it[i]) {
+      return
+    }
+    if (it[i] == '"') {
+      return [it.substring(1, i), it.substring(i+1)]
+    }
+  }
+}
+rules['ESC'] = {
+  if (it[0] == '\\' && "\\/bfnrt".indexOf(it[1]) > 0) {
+    return [it.substring(0, 1), it.substring(2)]
   }
 }
 rules['OBJECT'] = { it ->
@@ -93,14 +106,62 @@ rules['ARRAY'] = { it ->
   }
 }
 rules['NUM'] = { it ->
+  if (!(it[0] =~ /[0-9]|-/)) {
+    return
+  }
+  def (json_int, exponent, number, negative) = [null, null, 0, false]
+  if (it[0] == '-') {
+    negative = true
+    it = it.substring(1)
+  }
+  (number, it) = rules['INT'](it)
+  if (it[0] == '.') {
+    it = it.substring(1)
+    if (!it[0] =~ /[0-9]/) {
+      return
+    }
+    int i = 0
+    while (it[i++] =~ /0-9/)
+      ;
+    def decimal = Double.parseDouble(it.substring(0, i))
+    while (decimal > 1) {
+      decimal = decimal / 10
+    }
+    it = it.substring(i)
+    number += decimal
+  }
+  def possible_exp = rules['EXP'](it)
+  if (possible_exp) {
+    it = possible_exp[1]
+    number = number * 10 ** possible_exp[0]
+  }
+  if (negative) {
+    number *= -1
+  }
+  return [number, it]
+}
+rules['INT'] = { it ->
+  if (it[0] == '0') {
+    return [0, substring(1)]
+  }
   if (!(it[0] =~ /[1-9]/)) {
     return
   }
   for (int i = 1; i < it.length(); i++) {
     if (!(it[i] =~ /[0-9]/)) {
-      return [Integer.parseInt(it.substring(0, i-1)), it.substring(i)]
+      return [Integer.parseInt(it.substring(0, i)), it.substring(i)]
     }
   }
+}
+rules['EXP'] = { it ->
+  if (!(it[0] =~ /[Ee]/)) {
+    return
+  }
+  it = it.substring(1)
+  if (['+', '-'].contains(it[0])) {
+    it = it.substring(1)
+  }
+  return rules['INT'](it)
 }
 
 // END OF PARSER CODE
@@ -124,14 +185,14 @@ String sample_json = """
     },
     {
       "anotherOne": [
-        "elemone",
-        "elemtwo",
-        "elemthree"
+        11,
+        -1,
+        -1.0,
+        3.5e2
       ]
     }
   ],
-  "keyTwo": "valTwo\\with escape"
+  "keyTwo": "valTwo \\t with an escape"
 }
 """
-
 parse_json(sample_json)
