@@ -14,20 +14,22 @@ String grammar = '''
   ESC       -> '\\' [\\/bfnrt]
 '''
 
-// rules return remainder of text after chomping, or null if they do not apply
+// rules return [tree fragments, remainder of text after chomping]
 rules = [:]
-rules['LIT'] = { it, text ->
-  if (it.startsWith(text)) {
-    return it.substring(text.length())
-  }
-}
 rules['VALUE'] = { it ->
-  return rules['LIT'](it, "'true'") ?:
-         rules['LIT'](it, "'false'") ?:
+  return rules['BOOL'](it) ?:
          rules['STRING'](it) ?:
          rules['ARRAY'](it) ?:
          rules['OBJECT'](it) ?:
          rules['NUM'](it)
+}
+rules['BOOL'] = { it ->
+  if (it.startsWith('true')) {
+    return [true, it.substring(6)]
+  }
+  if (it.startsWith("'false'")) {
+    return [false, it.substring(7)]
+  }
 }
 rules['STRING'] = { it ->
   if (!it.startsWith('"')) {
@@ -35,48 +37,57 @@ rules['STRING'] = { it ->
   }
   for (int i = 1; i < it.length(); i++) {
     if (it[i] == '"') {
-      return it.substring(i+1);
+      return [it.substring(1, i), it.substring(i+1)];
     }
   }
 }
 rules['OBJECT'] = { it ->
+  def (obj, k, v) = [[:], null, null]
   if (!it.startsWith('{')) {
     return
   }
   it = it.substring(1)
   if (it.startsWith('}')) {
-    return it.substring(1)
+    return [obj, it.substring(1)]
   }
-  it = rules['PAIR'](it)
+  (k, v, it) = rules['PAIR'](it)
+  obj[k] = v
   while (it.startsWith(',')) {
-    it = rules['PAIR'](it)
+    it = it.substring(1)
+    (k, v, it) = rules['PAIR'](it)
+    obj[k] = v
   }
   if (it.startsWith("}")) {
-    return it.substring(1)
+    return [obj, it.substring(1)]
   }
 }
 rules['PAIR'] = { it ->
-  remainder = rules['STRING'](it)
+  def val = null
+  def (name, remainder) = rules['STRING'](it)
   if (remainder.startsWith(':')) {
     remainder = remainder.substring(1)
-    remainder = rules['VALUE'](remainder)
+    (val, remainder) = rules['VALUE'](remainder)
   }
-  return remainder
+  return [name, val, remainder]
 }
 rules['ARRAY'] = { it ->
+  def (arr, elem) = [[], null]
   if (!it.startsWith('[')) {
     return
   }
   it = it.substring(1)
   if (it.startsWith(']')) {
-    return it.substring(1)
+    return [arr, it.substring(1)]
   }
-  it = rules['VALUE'](it)
+  (elem, it) = rules['VALUE'](it)
+  arr << elem
   while (it.startsWith(',')) {
-    it = rules['VALUE'](it)
+    it = it.substring(1)
+    (elem, it) = rules['VALUE'](it)
+    arr << elem
   }
   if (it.startsWith("]")) {
-    return it.substring(1)
+    return [arr, it.substring(1)]
   }
 }
 rules['NUM'] = { it ->
@@ -85,15 +96,17 @@ rules['NUM'] = { it ->
   }
   for (int i = 1; i < it.length(); i++) {
     if (!(it[i] =~ /[0-9]/)) {
-      return it.substring(i)
+      return [Integer.parseInt(it.substring(0, i-1)), it.substring(i)]
     }
   }
 }
 
 def parse_json(String text) {
-  text = text.replaceAll("\\s", "")
-  if ('EOF' == rules['VALUE'](text + 'EOF')) {
+  text = text.replaceAll("\\s", "") + "EOF"
+  def (tree, rem) = rules['VALUE'](text)
+  if ('EOF' == rem) {
     println "valid json"
+    println tree
   } else {
     println "invalid json"
   }
@@ -103,9 +116,17 @@ String sample_json = """
 {
   "key": [
     {
-      "nested object": 23
+      "nestedObject": 23
+    },
+    {
+      "anotherOne": [
+        "elemone",
+        "elemtwo",
+        "elemthree"
+      ]
     }
-  ]
+  ],
+  "keyTwo": "valTwo"
 }
 """
 
