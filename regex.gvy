@@ -1,27 +1,10 @@
-// each 'feature' of regex has a method that returns a closure.
-//    The closure takes in a str, and returns a list of possible remainders
-
-// need iterators for capture support
-
 /*
-  lit         on first dispatch return answer, else []
-  star        loop until nothing in remainders
-  dot         same as lit
-  oneof       loop over pats
-  seq         pretty much the same. Mask iterator returned
-  opt         first invocation [it], replace with pat
-  eol         same as lit
-  digit       same as lit
-*/
+  Each "feature" of the regex (such as `seq`) has a function that is invoked. In the case of seq(), it accepts
+    as arguments the patterns to use in _seq_uence. seq() will then return a closure. This closure is to be called with
+    the the pattern once, then an iterator is returned.
 
-/*
-  interface???
-  lit("abc") does not return a closure that accepts ("adcdef") that returns ("def")
-                      returns a closure that return null the second time
-
-  while (x = lit("abc")("abcdef")()) {
-    println x
-  }
+  This implementation supports backrefs, and so much of the code here is "tricky".
+  Look towards the bottom of this file to see tests/example usages. 
 */
 
 captures = []
