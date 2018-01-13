@@ -116,8 +116,6 @@ def oneof(Object... pats) {
     }
 }
 
-// BUG INCOMING!!! A capture object may be created many times??
-
 //this proved to be really hard
 def seq(Object... pats) {
     return { str ->
