@@ -4,7 +4,10 @@
     the the pattern once, then an iterator is returned.
 
   This implementation supports backrefs, and so much of the code here is "tricky".
-  Look towards the bottom of this file to see tests/example usages. 
+  Look towards the bottom of this file to see tests/example usages.
+
+  Mine somehow seems to be faster than grep's in this case:
+  groovy -e 'arr = []; (1..100).each {arr << '1'}; println arr.join("")' | grep -E '^(11+)(\1)+$'
 */
 
 captures = []
