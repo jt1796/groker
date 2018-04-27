@@ -39,7 +39,7 @@ def backref() {
       def capture_to_inspect
       def iter
       return {
-        if (captures.size() != 0 && captures.last() == null) {
+        if (captures.size() != 0 && null == captures.last()) {
           return null
         }
         if (capture_to_inspect != captures.last()) {
@@ -105,7 +105,7 @@ def oneof(Object... pats) {
         def pat_i = 0
         def iter = pats[pat_i](str)
         return {
-            while (iter != null) {
+            while (null != iter) {
                 def possible
                 while (null != (possible = iter())) {
                     return possible
@@ -140,7 +140,7 @@ def seq(Object... pats) {
             if (null == cur) {
                 return null
             }
-            if (child == null) {
+            if (null == child) {
                 child = seq(pats.drop(1))(cur)
             }
             def potential = child()
