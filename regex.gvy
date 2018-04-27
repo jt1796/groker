@@ -1,6 +1,6 @@
 /*
   This implementation supports backrefs, and so much of the code here is "tricky".
-  Since this doesn't use a DFA, do not expect this to be performant. 
+  Since this doesn't use a DFA, do not expect this to be performant.
   Look towards the bottom of this file to see tests/example usages.
 
   Each "feature" of the regex (such as `seq`) has a function that is invoked. In the case of seq(), it accepts
@@ -8,7 +8,7 @@
     the pattern once, then an iterator is returned. Each invocation of the iterator will return a possible "remainder" after the matching.
     Once all possible remainders are used, a null will be returned.
 
-    Example: oneof(lit("a"), lit("b"), lit("c")) will return a closure c. 
+    Example: oneof(lit("a"), lit("b"), lit("c")) will return a closure c.
              Invoke closure c with the string "cat" and you will get an iterator.
              Invoke the iterator once and you get "at". Invoke again and you get null.
 
@@ -21,12 +21,13 @@ captures = []
 def capture(pat) {
     return { str ->
         def iter = pat(str)
-        def my_captures = []
-        captures << my_captures
+        def my_capture = null
+        def indexAt = captures.size()
+        captures << my_capture
         return {
             def val = iter()
             if (val) {
-              my_captures << str.substring(0, str.length() - val.length())    // put in str - val
+              captures[indexAt] = str.substring(0, str.length() - val.length())
             }
             return val
         }
@@ -38,11 +39,11 @@ def backref() {
       def capture_to_inspect
       def iter
       return {
-        if (captures.size() == 0 || captures.last().size() == 0) {
+        if (captures.size() != 0 && captures.last() == null) {
           return null
         }
-        if (capture_to_inspect != captures.last().last()) {
-            capture_to_inspect = captures.last().last()
+        if (capture_to_inspect != captures.last()) {
+            capture_to_inspect = captures.last()
             iter = lit(capture_to_inspect)(str)
         }
         return iter()
