@@ -53,7 +53,6 @@ def hand_type(hand) {
   }
 }
 
-//print_probabilities()
 def print_probabilities() {
   types = (0..9).collectEntries { [(it): 0.0] }
   trials = 500000
@@ -65,39 +64,4 @@ def print_probabilities() {
   println types.collectEntries { type, count -> [type, (count/trials * 100) + '%'] }
 }
 
-def apply_blind(players) {
-  players.each { player -> player['money'] -= 40 }
-}
-
-int round_of_bets(players) {
-  println "You have ${players[0]['money']}, how much would you like to bet? (-1 to fold)"
-  int pot = Integer.parseInt(System.console().readLine())
-  players[0]['money'] -= pot
-  for (int i = 1; i < players.size(); i++) {
-    bet = players[i]['money'] / 2
-    pot += bet
-    players[i]['money'] -= bet
-    println "Player $i bet $bet"
-  }
-  return pot
-}
-
-def play_game() {
-  def players = (0..4).collect { ['hand':[], 'money': 1000, 'folded': false] }
-  def shared_cards = []
-  hands = deal(1)
-  for (int i = 0; i < players.size(); i++) {
-    players[i]['hand'] = hands[2*i] + hands[2*i + 1]
-  }
-  apply_blind(players)
-  shared_cards = (1..3).collect { hands[players.size() + it][0] }
-  println "Your Hand: " + players[0]['hand']
-  pot = round_of_bets(players)
-  println "Shared Cards: $shared_cards"
-  println "You have a ${hand_type(shared_cards + players[0]['hand'])[1]}"
-  while (1 != players.findAll { it['folded'] }.size()) {
-    round_of_bets(players)
-  }
-}
-
-play_game()
+print_probabilities()
