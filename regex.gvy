@@ -199,15 +199,6 @@ def digit() {
     }
 }
 
-def is_prime(num) {
-    for (int i = 2; i < (int) Math.sqrt(num) + 1; i++) {
-      if (num % i == 0) {
-        return false
-      }
-    }
-    return true
-}
-
 def iter_to_list(iter) {
     def vals = []
     def toAdd
@@ -324,6 +315,7 @@ isprime = seq(
           )
 
 (1..100).each {
+    def is_prime = { num -> (num <= 2) || !(2..Math.sqrt(num)).any { num % it == 0 } }
     def verified_prime = is_prime(it)
     def regex_prime = (iter_to_list(isprime("1" * it)).size() == 0)
     assert verified_prime == regex_prime
