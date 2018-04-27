@@ -7,7 +7,7 @@
   Look towards the bottom of this file to see tests/example usages.
 
   Mine somehow seems to be faster than grep's in this case:
-  groovy -e 'arr = []; (1..100).each {arr << '1'}; println arr.join("")' | grep -E '^(11+)(\1)+$'
+  groovy -e 'println "1" * 100' | grep -E '^(11+)(\1)+$'
 */
 
 captures = []
@@ -194,12 +194,6 @@ def digit() {
     }
 }
 
-def to_unary(num) {
-  def ones = []
-  num.times { ones << "1" }
-  return ones.join("")
-}
-
 def is_prime(num) {
   for (int i = 2; i < (int) Math.sqrt(num) + 1; i++) {
     if (num % i == 0) {
@@ -309,7 +303,7 @@ iseven = seq(
     if (it % 2 == 0) {
       expected = [""]
     }
-    assert iter_to_list(iseven(to_unary(it))) == expected
+    assert iter_to_list(iseven("1" * it)) == expected
 }
 
 //prime (111*)\1+
@@ -326,6 +320,6 @@ isprime = seq(
 
 (1..100).each {
   def verified_prime = is_prime(it)
-  def regex_prime = (iter_to_list(isprime(to_unary(it))).size() == 0)
+  def regex_prime = (iter_to_list(isprime("1" * it)).size() == 0)
   assert verified_prime == regex_prime
 }
