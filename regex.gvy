@@ -1,7 +1,7 @@
 /*
   Each "feature" of the regex (such as `seq`) has a function that is invoked. In the case of seq(), it accepts
     as arguments the patterns to use in _seq_uence. seq() will then return a closure. This closure is to be called with
-    the the pattern once, then an iterator is returned.
+    the pattern once, then an iterator is returned.
 
   This implementation supports backrefs, and so much of the code here is "tricky".
   Look towards the bottom of this file to see tests/example usages.
@@ -38,8 +38,7 @@ def backref() {
         if (capture_to_inspect != captures.last().last()) {
             capture_to_inspect = captures.last().last()
             iter = lit(capture_to_inspect)(str)
-        } // needed ?
-        //println "CMPing ${str.length()} against the capture: ${capture_to_inspect.length()}"
+        }
         return iter()
       }
   }
@@ -132,7 +131,7 @@ def seq(Object... pats) {
         def iter = pats[0](str)
         def cur = iter()
         def child
-        return { //guessing that cur is null?
+        return {
             if (null == cur) {
                 return null
             }
@@ -150,7 +149,6 @@ def seq(Object... pats) {
                 }
             }
             return null
-
         }
     }
 }
@@ -195,21 +193,21 @@ def digit() {
 }
 
 def is_prime(num) {
-  for (int i = 2; i < (int) Math.sqrt(num) + 1; i++) {
-    if (num % i == 0) {
-      return false
+    for (int i = 2; i < (int) Math.sqrt(num) + 1; i++) {
+      if (num % i == 0) {
+        return false
+      }
     }
-  }
-  return true
+    return true
 }
 
 def iter_to_list(iter) {
-  def vals = []
-  def toAdd
-  while (null != (toAdd = iter())) {
-    vals << toAdd
-  }
-  return vals
+    def vals = []
+    def toAdd
+    while (null != (toAdd = iter())) {
+      vals << toAdd
+    }
+    return vals
 }
 
 // SMALL TESTS //
@@ -319,7 +317,7 @@ isprime = seq(
           )
 
 (1..100).each {
-  def verified_prime = is_prime(it)
-  def regex_prime = (iter_to_list(isprime("1" * it)).size() == 0)
-  assert verified_prime == regex_prime
+    def verified_prime = is_prime(it)
+    def regex_prime = (iter_to_list(isprime("1" * it)).size() == 0)
+    assert verified_prime == regex_prime
 }
