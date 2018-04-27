@@ -92,9 +92,9 @@ def star(pat) {
 def dot() {
     return {
         def rem = (it.length() > 0) ? it.substring(1) : null
-        def returnVal = rem
+        def returnVal
         return {
-            (returnVal, rem) = [rem, null]
+            (returnVal, rem) = [rem, returnVal]
             return returnVal
         }
     }
@@ -126,14 +126,12 @@ def oneof(Object... pats) {
 def seq(Object... pats) {
     return { str ->
         if (pats.length == 0) {
-          def returned = false
-          return {
-            if (returned) {
-                return null
+            def val = str
+            def returnVal
+            return {
+                (val, returnVal) = [returnVal, val]
+                return returnVal
             }
-            returned = true
-            return str
-          }
         }
         def iter = pats[0](str)
         def cur = iter()
@@ -176,13 +174,11 @@ def opt(pat) {
 
 def eol() {
     return { str ->
-        def returned = false
+        def val = str == '' ? '' : null
+        def returnVal
         return {
-            if (returned) {
-              return null
-            }
-            returned = true
-            return str == '' ? '' : null
+          (val, returnVal) = [returnVal, val]
+          return returnVal
         }
     }
 }
@@ -190,10 +186,10 @@ def eol() {
 def digit() {
     return {
         def isDigit = it.length() > 0 && ('0' <= it[0]) && ('9' >= it[0])
-        def returnVal = isDigit ? it.substring(1) : null
-        def rem = returnVal
+        def rem = isDigit ? it.substring(1) : null
+        def returnVal
         return {
-            (returnVal, rem) = [rem, null]
+            (returnVal, rem) = [rem, returnVal]
             return returnVal
         }
     }
