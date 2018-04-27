@@ -1,10 +1,16 @@
 /*
+  This implementation supports backrefs, and so much of the code here is "tricky".
+  Since this doesn't use a DFA, do not expect this to be performant. 
+  Look towards the bottom of this file to see tests/example usages.
+
   Each "feature" of the regex (such as `seq`) has a function that is invoked. In the case of seq(), it accepts
     as arguments the patterns to use in _seq_uence. seq() will then return a closure. This closure is to be called with
-    the pattern once, then an iterator is returned.
+    the pattern once, then an iterator is returned. Each invocation of the iterator will return a possible "remainder" after the matching.
+    Once all possible remainders are used, a null will be returned.
 
-  This implementation supports backrefs, and so much of the code here is "tricky".
-  Look towards the bottom of this file to see tests/example usages.
+    Example: oneof(lit("a"), lit("b"), lit("c")) will return a closure c. 
+             Invoke closure c with the string "cat" and you will get an iterator.
+             Invoke the iterator once and you get "at". Invoke again and you get null.
 
   Mine somehow seems to be faster than grep's in this case:
   groovy -e 'println "1" * 100' | grep -E '^(11+)(\1)+$'
