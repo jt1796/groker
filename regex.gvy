@@ -69,15 +69,15 @@ def star(pat) {
         def frontier = []
         return {
             if (computed.isEmpty()) {
-                frontier += arg
+                frontier << arg
             }
             while (frontier != []) {
                 def potential = frontier[0]
                 def iter = pat(potential)
                 while (null != potential) {
                     if (!computed.contains(potential)) {
-                        frontier += potential
-                        computed += potential
+                        frontier << potential
+                        computed << potential
                         return potential
                     }
                     potential = iter()
@@ -110,8 +110,7 @@ def oneof(Object... pats) {
                 while (null != (possible = iter())) {
                     return possible
                 }
-                pat_i++
-                if (pat_i < pats.length) {
+                if (++pat_i < pats.length) {
                     iter = pats[pat_i](str)
                 } else {
                     iter = null
