@@ -160,14 +160,12 @@ def seq(Object... pats) {
 
 def opt(pat) {
     return { str ->
-        def returned_me = false
         def iter = pat(str)
+        def ret = str
+        def returnVal
         return {
-            if (!returned_me) {
-                returned_me = true
-                return str
-            }
-            return iter()
+            (ret, returnVal) = [iter(), ret]
+            return returnVal
         }
     }
 }
