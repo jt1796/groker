@@ -1,13 +1,16 @@
 # Small Programs
 
+## regex.gvy
+Regex implementation. Has matching groups and backreferences. These features are not possible with a typical simple DFA implementation. 
+
 ## poker.gvy
-Computes distribution of hands (straight flush etc)
+Computes distribution of hands (straight flush etc).
 
 ## json.gvy
 Handwritten json parser. Builds tree representation of json. 
 
-## regex.gvy
-Regex implementation
+## diff.gvy
+Takes two strings `A` and `B` and returns a "patch" that can transform `A` into `B`.
 
 ## rpn.gvy
 Postifx notation calculator. Example: 2 2 + 2 * == 8
