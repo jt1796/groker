@@ -27,7 +27,7 @@ def capture(pat) {
         return {
             def val = iter()
             if (val) {
-              captures[indexAt] = str.substring(0, str.length() - val.length())
+                captures[indexAt] = str.substring(0, str.length() - val.length())
             }
             return val
         }
@@ -35,20 +35,20 @@ def capture(pat) {
 }
 
 def backref() {
-  return { str ->
-      def capture_to_inspect
-      def iter
-      return {
-        if (captures.size() != 0 && null == captures.last()) {
-          return null
+    return { str ->
+        def capture_to_inspect
+        def iter
+        return {
+            if (captures.size() != 0 && null == captures.last()) {
+                return null
+            }
+            if (capture_to_inspect != captures.last()) {
+                capture_to_inspect = captures.last()
+                iter = lit(capture_to_inspect)(str)
+            }
+            return iter()
         }
-        if (capture_to_inspect != captures.last()) {
-            capture_to_inspect = captures.last()
-            iter = lit(capture_to_inspect)(str)
-        }
-        return iter()
-      }
-  }
+    }
 }
 
 def lit(str) {
@@ -69,20 +69,20 @@ def star(pat) {
         def frontier = []
         return {
             if (computed.isEmpty()) {
-              frontier += arg
+                frontier += arg
             }
             while (frontier != []) {
-              def potential = frontier[0]
-              def iter = pat(potential)
-              while (null != potential) {
-                if (!computed.contains(potential)) {
-                  frontier += potential
-                  computed += potential
-                  return potential
+                def potential = frontier[0]
+                def iter = pat(potential)
+                while (null != potential) {
+                    if (!computed.contains(potential)) {
+                        frontier += potential
+                        computed += potential
+                        return potential
+                    }
+                    potential = iter()
                 }
-                potential = iter()
-              }
-              frontier = frontier.drop(1)
+                frontier = frontier.drop(1)
             }
             return null
         }
@@ -145,7 +145,7 @@ def seq(Object... pats) {
             }
             def potential = child()
             if (null != potential) {
-              return potential
+                return potential
             }
             while (null != (cur = iter())) {
                 child = seq(pats.drop(1))(cur)
@@ -175,8 +175,8 @@ def eol() {
         def val = str == '' ? '' : null
         def returnVal
         return {
-          (val, returnVal) = [returnVal, val]
-          return returnVal
+            (val, returnVal) = [returnVal, val]
+            return returnVal
         }
     }
 }
@@ -197,7 +197,7 @@ def iter_to_list(iter) {
     def vals = []
     def toAdd
     while (null != (toAdd = iter())) {
-      vals << toAdd
+        vals << toAdd
     }
     return vals
 }
