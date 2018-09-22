@@ -1,20 +1,21 @@
 eval = [
-  'var': { x            -> { _ -> x } },
-  'mul': { l, r, x      -> { _ -> compile(l, x)() * compile(r, x)() } },
-  'sin': { e, x         -> { _ -> Math.sin(compile(e, x)()) } },
-  'pow': { base, exp, x -> { _ -> Math.pow(compile(base, x)(), compile(exp, x)()) } },
+  'var': { x            -> { _ -> x }},
+  'mul': { l, r, x      -> { _ -> compile(l, x)() * compile(r, x)() }},
+  'sin': { e, x         -> { _ -> Math.sin(compile(e, x)()) }},
+  'cos': { e, x         -> { _ -> Math.cos(compile(e, x)()) }},
+  'pow': { base, exp, x -> { _ -> Math.pow(compile(base, x)(), compile(exp, x)()) }},
   'log': { b, x         -> { _ -> Math.log(compile(b, x))() }},
   'add': { l, r, x      -> { _ -> compile(l, x)() + compile(r, x)() }},
-  'con': { it, x        -> { _ -> it } }
+  'con': { it, x        -> { _ -> it }}
 ]
 
 // Double invocation ()(). Really needed? 
 deriv_rules = [
-  'var': { x            -> { _ -> ['con', 1] } },
-  'mul': { l, r, x      -> { _ -> ['add', ['mul', derive(l)(), r], ['mul', l, derive(r)()]] } },
-  'sin': { e, x         -> { _ -> ['mul', ['cos', e], derive(e)()] } },
-  'add': { l, r, x      -> { _ -> ['add', derive(l)(), derive(r)()]} },
-  'con': { it, x        -> { _ -> ['con', 0] } }
+  'var': { x            -> { _ -> ['con', 1] }},
+  'mul': { l, r, x      -> { _ -> ['add', ['mul', derive(l)(), r], ['mul', l, derive(r)()]] }},
+  'sin': { e, x         -> { _ -> ['mul', ['cos', e], derive(e)()] }},
+  'add': { l, r, x      -> { _ -> ['add', derive(l)(), derive(r)()]}},
+  'con': { it, x        -> { _ -> ['con', 0] }}
 ]
 
 print_rules = [
@@ -93,5 +94,6 @@ assert -1.5136049906158564 == compiled(2)
 
 // x * sin(x)   ->  sinx + xcosx
 expr = ['mul', ['sin', ['var']], ['var']]
-println derive(expr)()
-println print_expr(prune_expr(derive(expr)()))
+derived = derive(expr)()
+println print_expr(prune_expr(derived))
+assert  -7.788053871720336 == compile(derived)(9)
