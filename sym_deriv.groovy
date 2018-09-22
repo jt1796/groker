@@ -4,21 +4,26 @@ eval = [
   'sin': { e, x         -> { _ -> Math.sin(compile(e, x)()) } },
   'pow': { base, exp, x -> { _ -> Math.pow(compile(base, x)(), compile(exp, x)()) } },
   'log': { b, x         -> { _ -> Math.log(compile(b, x))() }},
+  'add': { l, r, x      -> { _ -> compile(l, x)() + compile(r, x)() }},
   'con': { it, x        -> { _ -> it } }
 ]
 
+// Double invocation ()(). Really needed? 
+deriv_rules = [
+  'var': { x            -> { _ -> ['con', 1] } },
+  'mul': { l, r, x      -> { _ -> ['add', ['mul', derive(l)(), r], ['mul', l, derive(r)()]] } },
+  'sin': { e, x         -> { _ -> ['mul', ['cos', e], derive(e)()] } },
+  'add': { l, r, x      -> { _ -> ['add', derive(l)(), derive(r)()]} },
+  'con': { it, x        -> { _ -> ['con', 0] } }
+]
 
-// should there even be primitive operations here? Like multiply etc
-// also shouldnt call compile. Want this to be homomorphic, so it needs to return
-// an original tree structure. 
-rules = [
-  'var': { x            -> { _ -> eval['con'](1, x)() } },
-  'mul': { l, r, x      -> { _ -> derive(l, x)() * compile(r, x)() +
-                                  compile(l, x)() * derive(r, x)() } },
-  'sin': { e, x         -> { _ -> Math.cos(compile(e, x)()) * derive(e, x)() } },
-  //'pow': long expression don't feel like writing it out now
-  'log': { b, x         -> { _ -> derive(b, x)() / compile(b, x)() } },
-  'con': { it, x        -> { _ -> 0 } }
+print_rules = [
+  'var': { 'x' },
+  'con': { it },
+  'sin': { "Sin($it)" },
+  'cos': { "Cos($it)" },
+  'add': { l, r -> "$l + $r" },
+  'mul': { l, r -> "$l * $r" }
 ]
 
 def compile(expr, x='sentinel') {
@@ -30,11 +35,30 @@ def compile(expr, x='sentinel') {
 }
 
 def derive(expr, x='sentinel') {
-    if ('sentinel' == x) {
-        return { var -> derive(expr, var)() }
+    return deriv_rules[expr[0]](*expr.drop(1), x)
+}
+
+// TODO:
+//   1 * something
+//   0 * something
+//   0 + something
+def prune_expr(expr) {
+    if (expr[0] == 'mul') {
+        if (expr[1] == ['con', 1]) {
+            return expr[2]
+        }
+        if (expr[2] == ['con', 1]) {
+            return expr[1]
+        }
+        // ...
     }
-    
-    return rules[expr[0]](*expr.drop(1), x)
+    return expr
+}
+
+// TODO: if depth is 1, no need for ()s
+def print_expr(expr) {
+    def args = expr.drop(1).collect { it -> it instanceof List ? "(${print_expr(it)})" : it }
+    return print_rules[expr[0]](*   args)
 }
 
 // x * sin(x^2)
@@ -49,9 +73,9 @@ def expr = ['mul',
            ]
        
 compiled = compile(expr)
-println compiled(2)
+assert -1.5136049906158564 == compiled(2)
 
-// x * sin(x)
+// x * sin(x)   ->  sinx + xcosx
 expr = ['mul', ['sin', ['var']], ['var']]
-derived = derive(expr)
-println derived(1)
+println derive(expr)()
+println print_expr(derive(expr)())
