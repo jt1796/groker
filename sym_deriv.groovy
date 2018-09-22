@@ -38,19 +38,32 @@ def derive(expr, x='sentinel') {
     return deriv_rules[expr[0]](*expr.drop(1), x)
 }
 
-// TODO:
-//   1 * something
-//   0 * something
-//   0 + something
 def prune_expr(expr) {
+    if (! (expr instanceof List)) {
+        return expr
+    }
+    for (int it = 1; it < expr.size(); it++) {
+        expr[it] = prune_expr(expr[it])
+    }
+
     if (expr[0] == 'mul') {
+        if (expr.any { it == ['con', 0] }) {
+            return ['con', 0]
+        }
         if (expr[1] == ['con', 1]) {
             return expr[2]
         }
         if (expr[2] == ['con', 1]) {
             return expr[1]
         }
-        // ...
+    }
+    if (expr[0] == 'mul') {
+        if (expr[1] == ['con', 0]) {
+            return expr[2]
+        }
+        if (expr[2] == ['con', 0]) {
+            return expr[1]
+        }
     }
     return expr
 }
@@ -81,4 +94,4 @@ assert -1.5136049906158564 == compiled(2)
 // x * sin(x)   ->  sinx + xcosx
 expr = ['mul', ['sin', ['var']], ['var']]
 println derive(expr)()
-println print_expr(derive(expr)())
+println print_expr(prune_expr(derive(expr)()))
