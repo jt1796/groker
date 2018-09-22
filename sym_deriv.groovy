@@ -55,10 +55,13 @@ def prune_expr(expr) {
     return expr
 }
 
-// TODO: if depth is 1, no need for ()s
 def print_expr(expr) {
-    def args = expr.drop(1).collect { it -> it instanceof List ? "(${print_expr(it)})" : it }
-    return print_rules[expr[0]](*   args)
+    def args = expr.drop(1).collect { it -> it instanceof List ? print_expr(it) : it }
+    def str_rep = print_rules[expr[0]](*args)
+    if (!['var', 'con', 'sin', 'cos'].contains(expr[0])) {
+        str_rep = "($str_rep)"
+    }
+    return str_rep
 }
 
 // x * sin(x^2)
