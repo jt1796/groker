@@ -12,6 +12,9 @@ Computes distribution of hands (straight flush etc).
 ## json.gvy
 Handwritten json parser. Builds tree representation of json. 
 
+## deriv.gvy
+Function that computes derivatives of functions. Produces a plot of original function and deriv, printed to stdout. Zoom out terminal to get a good plot. 
+
 ## diff.gvy
 Takes two strings `A` and `B` and returns a "patch" that can transform `A` into `B`.
 
