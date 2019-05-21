@@ -3,6 +3,9 @@
 ## regex.gvy
 Regex implementation. Has matching groups and backreferences. These features are not possible with a typical simple DFA implementation. 
 
+## textgen.gvy
+Simple sentence generator. Reads text from file, and generates similar-ish text. Can sometimes give humorous sentences.
+
 ## poker.gvy
 Computes distribution of hands (straight flush etc).
 
